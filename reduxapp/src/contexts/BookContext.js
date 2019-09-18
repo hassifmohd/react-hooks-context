@@ -1,15 +1,20 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useReducer, useEffect } from "react";
 import BookReducer from "../reducers/BookReducer";
 
 export const BookContext = createContext();
 
 //example of context using functional component
 const BookContextProvider = props => {
-  const [books, dispatch] = useReducer(BookReducer, [
-    { title: "Book 11", id: 1, author: "Person 1" },
-    { title: "Book 22", id: 2, author: "Person 2" },
-    { title: "Book 33", id: 3, author: "Person 3" }
-  ]);
+  const [books, dispatch] = useReducer(BookReducer, [], () => {
+    //the 3rd parameter is the default value if 2nd parameter is blank
+    const localData = localStorage.getItem("books");
+    return localData ? JSON.parse(localData) : [];
+  });
+
+  //when there is changes in books, we mirror into localstorage
+  useEffect(() => {
+    localStorage.setItem("books", JSON.stringify(books));
+  }, [books]);
 
   return (
     <BookContext.Provider value={{ books, dispatch }}>
